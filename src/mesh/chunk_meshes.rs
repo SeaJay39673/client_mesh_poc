@@ -1,27 +1,50 @@
-use std::collections::HashMap;
+use std::{
+    collections::{BTreeMap, HashMap},
+    sync::Arc,
+};
 
-use wgpu::Device;
+use wgpu::{Device, Queue};
 
-use crate::{graphics::Renderable, mesh::ChunkMesh};
+use crate::{
+    graphics::{self, Graphics, Renderable, Texture},
+    mesh::ChunkMesh,
+};
 
 pub struct ChunkMeshes {
-    meshes: HashMap<[i64; 2], ChunkMesh>,
+    meshes: BTreeMap<(i64, i64), ChunkMesh>,
 }
 
 impl ChunkMeshes {
-    pub fn new(device: &Device, size: u8, scale: f32) -> Self {
-        let mut meshes: HashMap<[i64; 2], ChunkMesh> = HashMap::new();
+    pub fn new(
+        graphics: &Graphics,
+        chunks_radius: u8,
+        chunk_size: u8,
+        scale: f32,
+    ) -> anyhow::Result<Self> {
+        let mut meshes: BTreeMap<(i64, i64), ChunkMesh> = BTreeMap::new();
 
-        let size_i64 = size as i64;
+        let texture: Arc<Texture> =
+            Arc::new(Texture::from_file(graphics, "src/assets/isometric.png")?);
 
-        for x in -size_i64..=size_i64 {
-            for y in -size_i64..=size_i64 {
-                let pos = [x as i64, y as i64];
-                meshes.insert(pos, ChunkMesh::new(device, pos, size, scale));
+        let size_i64 = chunks_radius as i64;
+
+        for x in -(size_i64)..=size_i64 {
+            for y in -(size_i64)..=size_i64 {
+                meshes.insert(
+                    (-x, -y),
+                    ChunkMesh::new(
+                        &graphics.device,
+                        [x, y],
+                        (chunk_size + 1) * (chunks_radius + 1) - 1,
+                        chunk_size,
+                        scale,
+                        texture.clone(),
+                    )?,
+                );
             }
         }
 
-        Self { meshes }
+        Ok(Self { meshes })
     }
 }
 

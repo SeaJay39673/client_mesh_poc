@@ -3,11 +3,13 @@ use std::{mem, sync::Arc};
 use anyhow::anyhow;
 
 use wgpu::{
-    BufferAddress, Color, CommandEncoderDescriptor, Device, DeviceDescriptor, Instance, LoadOp,
-    Operations, PipelineLayoutDescriptor, Queue, RenderPass, RenderPassColorAttachment,
-    RenderPassDescriptor, RenderPipeline, RequestAdapterOptions, ShaderModuleDescriptor, StoreOp,
-    Surface, SurfaceConfiguration, SurfaceError, TextureViewDescriptor, VertexBufferLayout,
-    VertexStepMode, vertex_attr_array,
+    BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntry, BindingType, BufferAddress,
+    Color, CommandEncoderDescriptor, Device, DeviceDescriptor, Instance, LoadOp, Operations,
+    PipelineLayoutDescriptor, Queue, RenderPass, RenderPassColorAttachment, RenderPassDescriptor,
+    RenderPipeline, RequestAdapterOptions, SamplerBindingType, ShaderModuleDescriptor,
+    ShaderStages, StoreOp, Surface, SurfaceConfiguration, SurfaceError, TextureSampleType,
+    TextureViewDescriptor, TextureViewDimension, VertexBufferLayout, VertexStepMode,
+    vertex_attr_array,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -19,6 +21,7 @@ pub struct Graphics {
     pub queue: Queue,
     pub config: SurfaceConfiguration,
     pub pipeline: RenderPipeline,
+    pub texture_layout: BindGroupLayout,
 }
 
 impl Graphics {
@@ -38,7 +41,7 @@ impl Graphics {
 
         let shader = device.create_shader_module(ShaderModuleDescriptor {
             label: Some("Game Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shaders/shader.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("../shaders/shader.wgsl").into()),
         });
 
         let config = if let Some(config) = surface.get_default_config(&adapter, width, height) {
@@ -49,9 +52,32 @@ impl Graphics {
 
         surface.configure(&device, &config);
 
+        let texture_bind_group_layout =
+            device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+                label: Some("Texture Bind Group Layout"),
+                entries: &[
+                    BindGroupLayoutEntry {
+                        binding: 0,
+                        count: None,
+                        visibility: ShaderStages::FRAGMENT,
+                        ty: BindingType::Texture {
+                            sample_type: TextureSampleType::Float { filterable: true },
+                            view_dimension: TextureViewDimension::D2,
+                            multisampled: false,
+                        },
+                    },
+                    BindGroupLayoutEntry {
+                        binding: 1,
+                        count: None,
+                        visibility: ShaderStages::FRAGMENT,
+                        ty: BindingType::Sampler(SamplerBindingType::Filtering),
+                    },
+                ],
+            });
+
         let pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
             label: Some("Pipeline Layout"),
-            bind_group_layouts: &[],
+            bind_group_layouts: &[&texture_bind_group_layout],
             push_constant_ranges: &[],
         });
 
@@ -111,6 +137,7 @@ impl Graphics {
             queue,
             config,
             pipeline,
+            texture_layout: texture_bind_group_layout,
         })
     }
 

@@ -7,7 +7,7 @@ impl TileMesh {
         let vertices: Vec<VertexData> = vec![
             VertexData {
                 position: [-1.0, -1.0, 0.0],
-                uv: [0.0, 0.0],
+                uv: [0.0, 1.0 / 8.0],
                 color: [255, 255, 255, 255],
             },
             VertexData {
@@ -17,12 +17,12 @@ impl TileMesh {
             },
             VertexData {
                 position: [1.0, 1.0, 0.0],
-                uv: [0.0, 0.0],
+                uv: [1.0 / 8.0, 0.0],
                 color: [255, 255, 255, 255],
             },
             VertexData {
                 position: [1.0, -1.0, 0.0],
-                uv: [0.0, 0.0],
+                uv: [1.0 / 8.0, 1.0 / 8.0],
                 color: [255, 255, 255, 255],
             },
         ];
