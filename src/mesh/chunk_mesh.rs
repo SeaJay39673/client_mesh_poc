@@ -38,10 +38,7 @@ impl ChunkMesh {
         let mut sorted_instances: BTreeMap<(i64, i64, i64), InstanceData> = BTreeMap::new();
 
         let height_map = generate_heightmap(
-            &(
-                pos[0] * chunk_spacing as i64 + 1,
-                pos[1] * chunk_spacing as i64 + 1,
-            ),
+            &(pos[0] * chunk_spacing as i64, pos[1] * chunk_spacing as i64),
             size,
         )?;
 

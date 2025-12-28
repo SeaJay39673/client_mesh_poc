@@ -1,12 +1,7 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    sync::Arc,
-};
-
-use wgpu::{Device, Queue};
+use std::{collections::BTreeMap, sync::Arc};
 
 use crate::{
-    graphics::{self, Graphics, Renderable, Texture},
+    graphics::{Graphics, Renderable, Texture},
     mesh::ChunkMesh,
 };
 
@@ -23,8 +18,7 @@ impl ChunkMeshes {
     ) -> anyhow::Result<Self> {
         let mut meshes: BTreeMap<(i64, i64), ChunkMesh> = BTreeMap::new();
 
-        let texture: Arc<Texture> =
-            Arc::new(Texture::from_file(graphics, "src/assets/isometric.png")?);
+        let texture = Arc::new(Texture::from_file(graphics, "src/assets/grass_block.png")?);
 
         let size_i64 = chunks_radius as i64;
 
@@ -35,7 +29,7 @@ impl ChunkMeshes {
                     ChunkMesh::new(
                         &graphics.device,
                         [x, y],
-                        (chunk_size + 1) * (chunks_radius + 1) - 1,
+                        chunk_size * 2 + 1,
                         chunk_size,
                         scale,
                         texture.clone(),

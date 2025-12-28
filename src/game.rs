@@ -87,7 +87,7 @@ impl ApplicationHandler for GameManager {
         if self.chunk_meshes.is_none()
             && let Some(graphics) = &self.graphics
         {
-            match ChunkMeshes::new(graphics, 1, 8, 0.1) {
+            match ChunkMeshes::new(graphics, 2, 8, 0.1) {
                 Ok(chunk_meshes) => self.chunk_meshes = Some(chunk_meshes),
                 Err(e) => eprintln!("Error creating chunk meshes: {e}"),
             }

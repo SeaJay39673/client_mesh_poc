@@ -53,7 +53,7 @@ impl Texture {
             TexelCopyBufferLayout {
                 offset: 0,
                 bytes_per_row: Some(4 * width),
-                rows_per_image: Some(4 * height),
+                rows_per_image: Some(height),
             },
             texture_size,
         );
@@ -90,7 +90,7 @@ impl Texture {
         })
     }
 
-    pub fn from_color(graphics: &Graphics, color: &[u8; 4]) -> Self {
+    pub fn from_color(graphics: &Graphics, color: &[u8; 4], width: u32, height: u32) -> Self {
         let Graphics {
             device,
             queue,
@@ -99,8 +99,8 @@ impl Texture {
         } = graphics;
 
         let size = Extent3d {
-            width: 1,
-            height: 1,
+            width,
+            height,
             depth_or_array_layers: 1,
         };
 
